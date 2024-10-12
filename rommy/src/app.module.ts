@@ -22,7 +22,7 @@ import { BasketsModule } from './baskets/baskets.module';
         host: 'localhost',
         port: 5432,
         username: 'postgres',
-        password: '12345qwert',
+        password: 'postgres',
         database: 'rommy',
         models: [User],
        autoLoadModels: true,

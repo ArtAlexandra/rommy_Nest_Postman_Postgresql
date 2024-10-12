@@ -29,7 +29,7 @@ exports.AppModule = AppModule = __decorate([
                 host: 'localhost',
                 port: 5432,
                 username: 'postgres',
-                password: '12345qwert',
+                password: 'postgres',
                 database: 'rommy',
                 models: [users_model_1.User],
                 autoLoadModels: true,
