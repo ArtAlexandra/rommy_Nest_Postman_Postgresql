@@ -1,11 +1,13 @@
 
-import { Controller, Header, HttpCode, HttpStatus, Body, Post, Get, Param, UseInterceptors, Request, UploadedFile, Delete } from '@nestjs/common';
+import { UseGuards, Controller, HttpException,  Header, HttpCode, HttpStatus, Body, Post, Get, Param, UseInterceptors, Request, UploadedFile, Delete } from '@nestjs/common';
 import { ShopsService } from './shops.service';
 import { CreateShopDto } from './dto/create-shop.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import path = require('path');
 import { LogInShopDto } from './dto/login-shop.dto';
+import { AuthGuard } from '../users/auth.guard';
+
 
 export const storage = {
     // './uploads/profileimages'
@@ -30,18 +32,46 @@ export class ShopsController {
    
     @Post('/create')
     @UseInterceptors(FileInterceptor('file', storage))
-    create(@Body() shopDto :CreateShopDto,@UploadedFile() file:Express.Multer.File){
-        console.log(shopDto, file)
-        return this.shopsService.create(shopDto, file.originalname);
+    async create(@Body() shopDto :CreateShopDto,@UploadedFile() file:Express.Multer.File){
+        
+        try{
+            const data = await this.shopsService.create(shopDto, file.originalname);
+            return data
+        }
+        catch(error){
+            
+            throw new HttpException({
+                status: HttpStatus.FORBIDDEN,
+                warning: error.message,
+              }, HttpStatus.FORBIDDEN, {
+                cause: error
+              });
+        }
+        
     }
 
     @Get('/get-all')
     getAll(){
         return this.shopsService.findAll();
     }
+
+    @UseGuards(AuthGuard)
     @Get('/get-shop/:id')
-    getShop(@Param('id') id:number){
-        return this.shopsService.getShop(id);
+    async getShop(@Param('id') id:number){
+        try{
+            const data = await this.shopsService.getShop(id);
+            return data
+        }
+        catch(error){
+            
+            throw new HttpException({
+                status: HttpStatus.FORBIDDEN,
+                warning: error.message,
+              }, HttpStatus.FORBIDDEN, {
+                cause: error
+              });
+        }
+       
     }
 
 
@@ -51,7 +81,20 @@ export class ShopsController {
     }
 
     @Post('/shop-login')
-    login(@Body() loginShopDto:LogInShopDto){
-        return this.shopsService.login(loginShopDto);
+    async login(@Body() loginShopDto:LogInShopDto){
+        try{
+            const data = await this.shopsService.login(loginShopDto);
+            return data
+        }
+        catch(error){
+            
+            throw new HttpException({
+                status: HttpStatus.FORBIDDEN,
+                warning: error.message,
+              }, HttpStatus.FORBIDDEN, {
+                cause: error
+              });
+        }
+    
     }
 }

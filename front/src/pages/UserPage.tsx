@@ -14,16 +14,30 @@ const UserPage = ()=>{
     const navigate = useNavigate()
     const id = localStorage.getItem("userId")
     useEffect(()=>{
-        axios.get(`/users/get-user/${id}`)
+        axios.get(`/users/get-user/${id}`,
+            {
+                headers:{
+                    'Authorization' : `Bearer ${localStorage.getItem("access_token")}`
+                }
+            }
+        )
         .then(response => {
             console.log(response.data)
             setUser(response.data)
+            setError('')
         })
         .catch(error => {
+            setError(error.response.data.warning)
            console.error('There was an error!', error);
         });
 
-        axios.get(`/baskets/basket-user/${id}`)
+        axios.get(`/baskets/basket-user/${id}`,
+            {
+                headers:{
+                    'Authorization' : `Bearer ${localStorage.getItem("access_token")}`
+                }
+            }
+        )
         .then(response => {
             console.log(response.data)
             setBasket(response.data)
@@ -38,19 +52,29 @@ const UserPage = ()=>{
             id:localStorage.getItem('userId'),
             balance: balance
         }
-        axios.patch(`/users/add-balance`, data)
+        axios.patch(`/users/add-balance`, data,
+            {
+                headers:{
+                    'Authorization' : `Bearer ${localStorage.getItem("access_token")}`
+                }
+            }
+        )
         .then(response => {
             console.log(response.data)
-            if(typeof(response.data)==="string"){
-                setError(response.data)
-            }
-            else{
-                setUser(response.data)
-                setBalance(0)
-            }
-           
+            // if(typeof(response.data)==="string"){
+            //     setError(response.data)
+            // }
+            // else{
+            //     setUser(response.data)
+            //     setBalance(0)
+            // }
+
+            setUser(response.data)
+            setBalance(0)
+            setError('')
         })
         .catch(error => {
+            setError(error.response.data.warning)
            console.error('There was an error!', error);
         });
     }
@@ -61,7 +85,7 @@ const UserPage = ()=>{
         <p>Телефон: {user?.phone}</p>
         <p>Почта: {user?.email}</p>
         <p>Баланс: {user?.balance}</p>
-        {error && <p>{error}</p>}
+        {error && <p style={{color:'red'}}>{error}</p>}
         <input type="number" value={balance} onChange={(e)=>setBalance(Number(e.target.value))}/>
         <Button onClick={changeBalance}>Пополнить баланс</Button>
         {!basket?.length ?  <p>Пока заказов нет</p> : <p>Корзина</p>}

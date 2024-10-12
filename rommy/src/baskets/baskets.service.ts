@@ -48,22 +48,24 @@ export class BasketsService {
             });
         
             if(!goods){
-                return "Такой товар не найден";
+                throw new Error("Такой товар не найден")
+                
             }
             if(goods.payment){
-                return 'Этот товар уже оплачен'
+                throw new Error('Этот товар уже оплачен')
             }
     
             if(!goods.quantity){
-                return "Добавьте необходимое количество товара!";
+                throw new Error("Добавьте необходимое количество товара!")
             }
 
             if(goods.user.balance<goods.quantity * goods.goods.price){
-                return "Средств на счету не хватает для покупки товара. Пожалуйста, пополните баланс.";
+                throw new Error("Средств на счету не хватает для покупки товара. Пожалуйста, пополните баланс.")
+              
             }
         
             if(goods.quantity> goods.goods.quantity){
-                return "К сожалению, сейчас на складе нет такого количества товара.";
+                throw new Error("К сожалению, сейчас на складе нет такого количества товара.")
             }
 
            
@@ -92,32 +94,26 @@ export class BasketsService {
 
     async create(
         createBasketDto: CreateBasketDto
-    ): Promise<Basket| {warningMessage:string}>{
+    ): Promise<Basket>{
         
         
         const existingGoodsByGoodsId = await this.findOne({
             where: { goodsId: createBasketDto.goodsId}
         });
         if(!existingGoodsByGoodsId){
-            return {
-                warningMessage : 'Такого товара не существует'
-            };
+            throw new Error('Такого товара не существует')
         }
 
         const existinguserById = await this.userModel.findOne({
             where: { id: createBasketDto.userId}
         });
         if(!existinguserById){
-            return {
-                warningMessage : 'Такого пользователя не существует'
-            };
+            throw new Error('Такого пользователя не существует')
         }
 
        
         if(createBasketDto.quantity<=0){
-            return {
-                warningMessage : 'Можно добавить в карзину только положительное число вещей'
-            };
+            throw new Error('Можно добавить в карзину только положительное число вещей')
         }
 
         const goods = await this.goodsModel.findOne({where:{id_g: createBasketDto.goodsId}})

@@ -61,20 +61,12 @@ const CreateShop = ()=>{
         axios.post('/shops/create', uploadData )
         .then(response => {
             console.log(response.data)
-            if(response.data?.warningMessage){
-               
-                setError(response.data?.warningMessage)
-            }
-            else{
-                console.log(response.data)
-                navigate("/main")
-            }
-           
+            navigate("/loginshop")
         }
            
             )
         .catch(error => {
-           
+           setError(error.response.data.warning)
             console.error('There was an error!', error);
         });
      

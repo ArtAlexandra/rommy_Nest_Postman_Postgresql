@@ -25,20 +25,13 @@ const Registration = ()=>{
         values.balance = 0
         axios.post('/users/signin', values)
         .then(response => {
-            if(response.data?.warningMessage){
-               
-                setError(response.data?.warningMessage)
-            }
-            else{
                 console.log(response.data)
-                navigate("/main")
-            }
-           
+                navigate("/login")
         }
            
             )
         .catch(error => {
-           
+           setError(error.response.data.warning)
             console.error('There was an error!', error);
         });
       };

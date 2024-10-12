@@ -19,23 +19,20 @@ const LoginShop = ()=>{
         console.log('Success:', values);
         axios.post('/shops/shop-login', values)
         .then(response => {
-            if(typeof(response.data)==="string"){
-               
-                setError(response.data)
-            }
-            else{
+           
                 console.log(response.data)
-                localStorage.setItem("name", response.data?.name)
-                localStorage.setItem("shopId", response.data?.id)
-
+                localStorage.setItem("access_token", response.data.access_token)
+                // localStorage.setItem("name", response.data?.name)
+                localStorage.setItem("shopId", response.data.id)
+                setError('')
                 navigate("/mainshop")
-            }
+            
            
         }
            
             )
         .catch(error => {
-           
+           setError(error.response.data.warning)
             console.error('There was an error!', error);
         });
       };

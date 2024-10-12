@@ -21,17 +21,19 @@ const Login = ()=>{
         console.log('Success:', values);
         axios.post('/users/login', values)
         .then(response => {
-            if(response.data?.warningMessage){
+          localStorage.setItem("access_token", response.data.access_token)
+          localStorage.setItem("userId", response.data.id)
+            // if(response.data?.warningMessage){
                
-                setError(response.data?.warningMessage)
-            }
-            else{
+            //     setError(response.data?.warningMessage)
+            // }
+            // else{
                 console.log(response.data)
-                localStorage.setItem("username", response.data?.username)
-                localStorage.setItem("userId", response.data?.id)
+                //localStorage.setItem("username", response.data?.username)
+                //localStorage.setItem("userId", response.data?.id)
 
-                navigate("/catalog")
-            }
+               navigate("/catalog")
+            
            
         }
            

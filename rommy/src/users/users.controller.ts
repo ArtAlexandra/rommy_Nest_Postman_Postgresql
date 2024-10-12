@@ -1,9 +1,10 @@
 
-import { Body, Controller, Get, Post, UseGuards, Param, Patch } from '@nestjs/common';
+import { Body, HttpCode, HttpStatus, HttpException, Controller, Get, Post, UseGuards, Param, Patch } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserDto } from './dto/user.dto';
 import { AddBalanceDto } from './dto/addBalance.dto';
+import { AuthGuard } from './auth.guard';
 
 @Controller('users')
 export class UsersController {
@@ -11,8 +12,21 @@ export class UsersController {
 
    
     @Post('/signin')
-    create(@Body() userDto: CreateUserDto){
-        return this.usersService.create(userDto);
+    async create(@Body() userDto: CreateUserDto){
+        try{
+            const data = await this.usersService.create(userDto)
+            return data
+        }
+        catch(error){
+            
+            throw new HttpException({
+                status: HttpStatus.FORBIDDEN,
+                warning: error.message,
+              }, HttpStatus.FORBIDDEN, {
+                cause: error
+              });
+        }
+       
     }
 
    
@@ -21,19 +35,61 @@ export class UsersController {
     getAll(){
         return this.usersService.findAll();
     }
+
+    @UseGuards(AuthGuard)
     @Get('/get-user/:id')
-    getUser(@Param('id') id:number){
-        return this.usersService.getUser(id);
+    async getUser(@Param('id') id:number){
+        try{
+            const data = await this.usersService.getUser(id);
+            return data
+        }
+        catch(error){
+            
+            throw new HttpException({
+                status: HttpStatus.FORBIDDEN,
+                warning: error.message,
+              }, HttpStatus.FORBIDDEN, {
+                cause: error
+              });
+        }
+        
     }
 
     @Post('/login')
-    Login(@Body() userDto: UserDto){
+    async Login(@Body() userDto: UserDto){
         console.log(userDto)
-        return this.usersService.login(userDto)
+        try{
+            const data = await this.usersService.login(userDto)
+            return data
+        }
+        catch(error){
+            
+            throw new HttpException({
+                status: HttpStatus.FORBIDDEN,
+                warning: error.message,
+              }, HttpStatus.FORBIDDEN, {
+                cause: error
+              });
+        }
+       
     }
 
+    @UseGuards(AuthGuard)
     @Patch('/add-balance')
-    AddBalance(@Body() addBalance:AddBalanceDto){
-        return this.usersService.AddBalance(addBalance);
+    async AddBalance(@Body() addBalance:AddBalanceDto){
+        try{
+            const data = await this.usersService.AddBalance(addBalance);
+            return data
+        }
+        catch(error){
+            
+            throw new HttpException({
+                status: HttpStatus.FORBIDDEN,
+                warning: error.message,
+              }, HttpStatus.FORBIDDEN, {
+                cause: error
+              });
+        }
+        
     }
 }

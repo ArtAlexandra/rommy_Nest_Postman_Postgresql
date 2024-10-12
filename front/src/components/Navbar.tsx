@@ -18,7 +18,7 @@ const Navbar = ()=>{
       
       </Menu>
       <div>
-        <span>Добрый день, {name}!  </span>
+        <span>Добрый день!  </span>
         <Button onClick={()=>navigate('/basketpage')} style={{ marginRight: '10px' }}>Корзина</Button>
         <Button onClick={()=>navigate('/userpage')}>Личный кабинет</Button>
         

@@ -37,7 +37,13 @@ const Catalog = ()=>{
         });
     }
     useEffect(()=>{
-        axios.get('/goods/get-all')
+        axios.get('/goods/get-all',
+            {
+                headers:{
+                    'Authorization' : `Bearer ${localStorage.getItem("access_token")}`
+                }
+            }
+        )
         .then(response => {
            console.log(response.data)
            setGoods(response.data)
@@ -61,7 +67,13 @@ const Catalog = ()=>{
     }, [])
 
     const getAll = ()=>{
-        axios.get('/goods/get-all')
+        axios.get('/goods/get-all',
+            {
+                headers:{
+                    'Authorization' : `Bearer ${localStorage.getItem("access_token")}`
+                }
+            }
+        )
         .then(response => {
            console.log(response.data)
            setGoods(response.data)

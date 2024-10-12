@@ -6,12 +6,14 @@ import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt'
 import { UserDto } from './dto/user.dto';
 import { AddBalanceDto } from './dto/addBalance.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UsersService {
     constructor(
         @InjectModel(User)
         private userModel : typeof User,
+        private jwtService: JwtService
       ){}
 
       findOne(filter: {
@@ -25,7 +27,7 @@ export class UsersService {
       }
       async create(
         createUserDto: CreateUserDto
-    ): Promise<User| {warningMessage:string}>{
+    ): Promise<User>{
         const user = new User();
         // const existingUserByName = await this.findOne({
         //     where: {name: createUserDto.username}
@@ -36,9 +38,8 @@ export class UsersService {
         });
         
         if(existingUserByEmail){
-            return {
-                warningMessage : 'Пользователь с таким email уже существует'
-            };
+            throw new Error('Пользователь с таким email уже существует')
+            
         }
 
         const existingUserByUsername = await this.findOne({
@@ -46,9 +47,7 @@ export class UsersService {
         });
         
         if(existingUserByUsername){
-            return {
-                warningMessage : 'Пользователь с таким именем уже существует'
-            };
+            throw new Error('Пользователь с таким именем уже существует')
         }
         
         const existingUserByPhone = await this.findOne({
@@ -56,9 +55,8 @@ export class UsersService {
         });
         
         if(existingUserByPhone){
-            return {
-                warningMessage : 'Пользователь с таким номером телефона уже существует'
-            };
+            throw new Error('Пользователь с таким номером телефона уже существует')
+           
         }
         
 
@@ -76,37 +74,46 @@ export class UsersService {
 
     }
 
-    async getUser(id:number):Promise<CreateUserDto|string>{
+    async getUser(id:number):Promise<CreateUserDto>{
         const user = await this.findOne({where:{id}});
         if(!user){
-            return "Такой пользователь не найден";
+            throw new Error("Такой пользователь не найден")
         }
         return user;
     }
 
     async login(
         userDto: UserDto
-    ): Promise<User| {warningMessage:string}>{
+    ): Promise<{access_token: string, id:number}>{
         const existingUserByEmail = await this.findOne({
             where: {email: userDto.email}
         });
-        if(!existingUserByEmail) return {warningMessage:"Пользователь с такой почтой не найден"};
-        //const passwordValid = await bcrypt.hash(userDto.password, 10);
+        if(!existingUserByEmail){
+            throw new Error("Пользователь с такой почтой не найден")
+        };
+       
         const passwordValid = await bcrypt.compare(userDto.password, existingUserByEmail.password);
         
-        if(!passwordValid) return {warningMessage:"Пользователь с таким паролем не найден"};
-        return existingUserByEmail;
+        if(!passwordValid){
+            throw new Error("Пользователь с таким паролем не найден")
+        };
+        const payload = { sub: existingUserByEmail.id, username: existingUserByEmail.username };
+        const access_token = await this.jwtService.signAsync(payload)
+        return {
+            access_token: access_token, id: existingUserByEmail?.id
+        };
+        //return existingUserByEmail;
     }
 
-    async AddBalance(addBalance:AddBalanceDto):Promise<User|string>{
+    async AddBalance(addBalance:AddBalanceDto):Promise<User>{
         const user = await this.findOne({where: {id:addBalance.id}})
        
         console.log(user)
         if(!user){
-            return 'Такого пользователя не существует'
+            throw new Error('Такого пользователя не существует')
         } 
-        if(addBalance.balance<0){
-            return 'Баланс можно пополнить только на положительную сумму'
+        if(addBalance.balance<=0){
+            throw new Error('Баланс можно пополнить только на положительную сумму')
         }
         const balance = user.balance + addBalance.balance
         await this.userModel.update({balance}, {where: {id: addBalance.id}});

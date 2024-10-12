@@ -43,7 +43,7 @@ export class GoodsService {
       }
       async create(
         goodsDto: GoodsDto, image:string
-    ): Promise<Goods| {warningMessage:string}>{
+    ): Promise<Goods>{
        
         const goods = new Goods();
       
@@ -52,9 +52,7 @@ export class GoodsService {
         });
         
         if(existingGoodsByArticle){
-            return {
-                warningMessage : 'Одежда с таким артикулом уже существует'
-            };
+            throw new Error('Одежда с таким артикулом уже существует')
         }
 
         const existingGoodsByTitle = await this.findOne({
@@ -62,9 +60,7 @@ export class GoodsService {
         });
         
         if(existingGoodsByTitle){
-            return {
-                warningMessage : 'Одежда с таким названием уже существует'
-            };
+            throw new Error('Одежда с таким названием уже существует')
         }
         
      
@@ -83,33 +79,33 @@ export class GoodsService {
 
     }
 
-    async getGoodsId(id_g:number):Promise<GoodsDto|string>{
+    async getGoodsId(id_g:number):Promise<GoodsDto>{
         const goods = await this.findOne({where:{id_g}});
         if(!goods){
-            return "Такой товар не найден";
+            throw new Error("Такой товар не найден")
         }
         return goods;
     }
 
-    async getGoodsShopsId(id:number):Promise<Goods[]|string>{
+    async getGoodsShopsId(id:number):Promise<Goods[]>{
         const goods = await this.findAllParams({where:{shopId:id}});
 
         if(!goods.length){
-            return "У данного магазина пока нет товаров";
+            throw new Error("У данного магазина пока нет товаров")
         }
         return goods;
     }
 
-    async getGoodsTypeClothes(id:number):Promise<GoodsDto[]|string>{
+    async getGoodsTypeClothes(id:number):Promise<GoodsDto[]>{
         let goods = await this.findAll();
         goods = goods.filter(item=>item.typeId===id)
         if(!goods){
-            return "Нет ни одной одежды такого типа";
+            throw new Error("Нет ни одной одежды такого типа")
         }
         return goods;
     }
     
-    async getGoods():Promise<any[]|string>{
+    async getGoods():Promise<any[]>{
         let imagesGoods = await this.goodsModel.findAll();
         
         let a = imagesGoods.map(item=>{
@@ -123,22 +119,22 @@ export class GoodsService {
          console.log(a)
         
         if(!imagesGoods.length){
-            return "Такой магазин не найден";
+            throw new Error("Такой магазин не найден")
         }
        
         return a;
     }
 
-    async getGoodsSortType(id:number):Promise<Goods[]|string>{
+    async getGoodsSortType(id:number):Promise<Goods[]>{
         const goods = await this.findAllParams({where:{typeId:id}});
         
         if(!goods){
-            return "Такого типа одежды нет";
+            throw new Error("Такого типа одежды нет")
         }
        
         return goods;
     }
-    async getGoodsSortPrice(id:number):Promise<Goods[]|string>{
+    async getGoodsSortPrice(id:number):Promise<Goods[]>{
         let goods = await this.findAll();
         if(id==1){
             goods = goods.sort((a, b)=>a.price - b.price)
@@ -149,7 +145,7 @@ export class GoodsService {
        
         
         if(!goods){
-            return "Возникла какая-то ошибка";
+            throw new Error("Возникла какая-то ошибка")
         }
        
         return goods;
@@ -157,11 +153,11 @@ export class GoodsService {
 
 
 
-    async getGoodsImages(id_g:number):Promise<GoodsBigDto|string>{
+    async getGoodsImages(id_g:number):Promise<GoodsBigDto>{
         let goods = await this.findOne({where:{id_g:id_g}})
 
         if(!goods){
-           return "Такой товар не найден";
+            throw new Error("Такой товар не найден")
         }
 
         //let imagesArray = await this.imagesGoodsModel.findAll({where: {id_g: goods.id_g}})
@@ -204,29 +200,29 @@ export class GoodsService {
         return answer;
     }
 
-    async getGoodsShop(name:string):Promise<GoodsDto[]|string>{
+    async getGoodsShop(name:string):Promise<GoodsDto[]>{
         let goods = await this.findAll();
         goods = goods.filter(item=>item.shop.name==name)
         if(!goods){
-            return "У этого магазина пока нет товара";
+            throw new Error("У этого магазина пока нет товара")
         }
         return goods;
     }
 
-    async getGoodsQuantity(id_g:number):Promise<number|string>{
+    async getGoodsQuantity(id_g:number):Promise<number>{
         let goods = await this.findOne({where:{id_g}});
        
         if(!goods){
-            return "Такой товар не найден";
+            throw new Error("Такой товар не найден")
         }
         return goods.quantity;
     }
 
  
-    async deleteGoods(id:number):Promise<string>{
+    async deleteGoods(id:number):Promise<void>{
         const goods = await this.findOne({where:{id_g:id}})
         if(!goods){
-            return "Такого товара не существует"
+            throw new Error("Такого товара не существует")
         }
         await goods.destroy();
     }

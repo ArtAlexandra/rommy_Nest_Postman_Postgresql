@@ -13,33 +13,42 @@ import "./Shop.scss"
 const Shop = ()=>{
   const { id } = useParams<string>();
   const [shop, setShop] = useState<Shops>()
-  const [goods, setGoods] = useState<GoodsCatalog[]>()
+  const [goods, setGoods] = useState<GoodsCatalog[]>([])
   const [error, setError] = useState<string>('')
   const navigate = useNavigate()
   useEffect(()=>{
-    axios.get(`/shops/get-shop/${id}`)
+    axios.get(`/shops/get-shop/${id}`,
+      {
+        headers:{
+            'Authorization' : `Bearer ${localStorage.getItem("access_token")}`
+        }
+    }
+    )
     .then(response => {
        setShop(response.data)
     })
     .catch(error => {
-       
+       setError(error.response.data.warning)
         console.error('There was an error!', error);
     });
 
-    axios.get(`/goods/get-goodshopsid/${id}`)
+    axios.get(`/goods/get-goodshopsid/${id}`,
+      {
+        headers:{
+            'Authorization' : `Bearer ${localStorage.getItem("access_token")}`
+        }
+    }
+    )
     .then(response => {
       console.log(response.data)
-      if(typeof(response.data)==="string"){
-        setError(response.data)
-      }
-      else{
+     
         setGoods(response.data)
         setError('')
-      }
+      
        
     })
     .catch(error => {
-       
+       setError(error.response.data.warning)
         console.error('There was an error!', error);
     });
   }, [])

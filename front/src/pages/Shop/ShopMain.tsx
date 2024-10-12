@@ -52,29 +52,29 @@ const ShopMain = ()=>{
       axios.get(`/type-clothes/get-all`)
         .then(response => {
           console.log(response.data)
-          if(typeof(response.data)==="string"){
-            setError(response.data)
-          }
-          else{
+         
             setType(response.data)
             setError('')
-          }
+          
            
         })
         .catch(error => {
-           
+           setError(error.response.data.warning)
             console.error('There was an error!', error);
         });
-        axios.get(`/shops/get-shop/${id}`)
+        axios.get(`/shops/get-shop/${id}`,
+          {
+            headers:{
+                'Authorization' : `Bearer ${localStorage.getItem("access_token")}`
+            }
+        }
+        )
         .then(response => {
           console.log(response.data)
-          if(typeof(response.data)==="string"){
-            setError(response.data)
-          }
-          else{
+        
             setShop(response.data)
             setError('')
-          }
+          
            
         })
         .catch(error => {
@@ -82,34 +82,49 @@ const ShopMain = ()=>{
             console.error('There was an error!', error);
         });
 
-        axios.get(`/goods/get-goodshopsid/${id}`)
+        axios.get(`/goods/get-goodshopsid/${id}`,
+          {
+            headers:{
+                'Authorization' : `Bearer ${localStorage.getItem("access_token")}`
+            }
+        }
+        )
         .then(response => {
           console.log(response.data)
-          if(typeof(response.data)==="string"){
-            setError(response.data)
-          }
-          else{
+         
             setGoods(response.data)
             setError('')
-          }
+          
            
         })
         .catch(error => {
-           
+           setError(error.response.data.warning)
             console.error('There was an error!', error);
         });
     }, [])
 
     const Delete = (id:number)=>{
       ///goods-delete/
-      axios.delete(`/goods/goods-delete/${id}`)
+      axios.delete(`/goods/goods-delete/${id}`,
+        {
+          headers:{
+              'Authorization' : `Bearer ${localStorage.getItem("access_token")}`
+          }
+      }
+      )
       .then(response => {
         console.log(response.data)
         if(typeof(response.data)==="string"){
           setError(response.data)
         }
         else{
-          axios.get(`/goods/get-goodshopsid/${id}`)
+          axios.get(`/goods/get-goodshopsid/${id}`,
+            {
+              headers:{
+                  'Authorization' : `Bearer ${localStorage.getItem("access_token")}`
+              }
+          }
+          )
           .then(response => {
             console.log(response.data)
             if(typeof(response.data)==="string"){
@@ -154,7 +169,13 @@ const ShopMain = ()=>{
           uploadData.append('shopId', values.shopId)
 
         }
-        axios.post('/goods/create', uploadData)
+        axios.post('/goods/create', uploadData,
+          {
+            headers:{
+                'Authorization' : `Bearer ${localStorage.getItem("access_token")}`
+            }
+        }
+        )
         .then(response => {
             console.log(response.data)
             if(response.data?.warningMessage){
